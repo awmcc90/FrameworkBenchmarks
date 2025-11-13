@@ -1,86 +1,112 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    kotlin("jvm") version "1.9.22"
-    kotlin("kapt") version "1.9.22"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.shadow)
     application
-    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "com.example"
 version = "1.0.0-SNAPSHOT"
 
-repositories {
-    mavenCentral()
-}
-
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
 kotlin {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_21
+        jvmTarget = JvmTarget.JVM_25
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3)
+        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3)
     }
-    jvmToolchain(21)
+    jvmToolchain(25)
 }
 
-val mainClassName = "com.example.starter.App"
-
-val vertxVersion = "4.5.9"
-val nettyVersion = "4.1.112.Final"
-val scramVersion = "2.1"
-val dslJsonVersion = "2.0.2"
-val htmlFlowVersion = "4.6"
-val log4jVersion = "2.23.1"
-
 application {
-    mainClass = mainClassName
+    mainClass = "com.example.starter.AppKt"
 }
 
 dependencies {
-    listOfNotNull(
-        // Kotlin
-        kotlin("stdlib-jdk8"),
-        kotlin("reflect"),
+    // Kotlin
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlin.reflect)
 
-        // Vertx
-        platform("io.vertx:vertx-stack-depchain:$vertxVersion"),
-        "io.vertx:vertx-core",
-        "io.vertx:vertx-web",
-        "io.vertx:vertx-pg-client",
-        "io.vertx:vertx-lang-kotlin",
-        "io.vertx:vertx-lang-kotlin-coroutines",
+    // Vert.x
+    implementation(platform(libs.vertx.bom))
+    implementation(libs.vertx.core)
+    implementation(libs.vertx.web)
+    implementation(libs.vertx.pg.client)
+    implementation(libs.vertx.lang.kotlin)
+    implementation(libs.vertx.lang.kotlin.coroutines)
 
-        // Netty
-        "io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64",
+    // Netty
+    implementation(platform(libs.netty.bom))
+    resolvePlatformSpecificNettyDependencies(libs.versions.netty.get())
+        .forEach { implementation(it) }
 
-        // Postgres
-        "com.ongres.scram:client:$scramVersion",
+    // DSL-JSON
+    implementation(libs.dsl.json)
+    kapt(libs.dsl.json)
 
-        // dsljson
-        "com.dslplatform:dsl-json:$dslJsonVersion",
-
-        // HtmlFlow
-        "com.github.xmlet:htmlflow:$htmlFlowVersion",
-
-        // Logging
-        "org.apache.logging.log4j:log4j-core:$log4jVersion",
-        "org.apache.logging.log4j:log4j-api:$log4jVersion",
-        "org.apache.logging.log4j:log4j-api-kotlin:1.4.0",
-        "com.lmax:disruptor:4.0.0",
-    ).map { implementation(it) }
-
-    listOf(
-        "com.dslplatform:dsl-json:$dslJsonVersion",
-        "org.apache.logging.log4j:log4j-core:$log4jVersion",
-    ).map { kapt(it) }
+    // Log4j
+    implementation(libs.log4j.core)
+    implementation(libs.log4j.api)
+    implementation(libs.log4j.api.kotlin)
+    implementation(libs.disruptor)
 }
 
-tasks.withType<ShadowJar> {
-    archiveClassifier = "fat"
-    mergeServiceFiles()
+tasks {
+    shadowJar {
+        archiveClassifier = "fat"
+        mergeServiceFiles()
+    }
+
+    register<JavaExec>("server") {
+        dependsOn(this@tasks.classes)
+
+        mainClass.set(application.mainClass.get())
+        classpath = sourceSets.main.get().runtimeClasspath
+
+        val cpuCount = Runtime.getRuntime().availableProcessors()
+
+        jvmArgs = listOf(
+            "-server",
+            "--enable-native-access=ALL-UNNAMED",
+            "--add-opens=java.base/java.lang=ALL-UNNAMED",
+            "-Xms2G",
+            "-Xmx2G",
+            "-XX:+AlwaysPreTouch",
+            "-XX:+UseParallelGC",
+            "-XX:+EnableDynamicAgentLoading",
+            "-XX:InitialCodeCacheSize=512m",
+            "-XX:ReservedCodeCacheSize=512m",
+            "-XX:MaxInlineLevel=20",
+            "-XX:+UseNUMA",
+            "-XX:-UseCodeCacheFlushing",
+            "-XX:AutoBoxCacheMax=10001",
+            "-Djava.net.preferIPv4Stack=true",
+            "-Dvertx.disableMetrics=true",
+            "-Dvertx.disableWebsockets=true",
+            "-Dvertx.disableContextTimings=true",
+            "-Dvertx.cacheImmutableHttpResponseHeaders=true",
+            "-Dvertx.internCommonHttpRequestHeadersToLowerCase=true",
+            "-Dvertx.disableHttpHeadersValidation=true",
+            "-Dvertx.eventLoopPoolSize=$cpuCount",
+            "-Dio.netty.noUnsafe=false",
+            "-Dio.netty.buffer.checkBounds=false",
+            "-Dio.netty.buffer.checkAccessible=false",
+            "-Dio.netty.allocator.type=pooled",
+            "-Dio.netty.recycler.maxCapacityPerThread=4096",
+            "-Dio.netty.recycler.maxSharedCapacityFactor=2",
+            "-Dio.netty.recycler.linkCapacity=4096",
+            "-Dio.netty.recycler.ratio=8",
+            "-Dio.netty.leakDetection.level=disabled",
+            "-Dio.netty.maxDirectMemory=0",
+            "-Dio.netty.threadLocalDirectBufferSize=0",
+            "-Dtfb.hasDB=false",
+        )
+    }
 }

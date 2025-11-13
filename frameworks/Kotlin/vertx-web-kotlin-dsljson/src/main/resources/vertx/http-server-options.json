@@ -1,0 +1,13 @@
+{
+  "port": 8080,
+  "sendBufferSize": 262144,
+  "receiveBufferSize": 262144,
+  "tcpFastOpen": true,
+  "tcpNoDelay": true,
+  "soLinger": 0,
+  "idleTimeout": 0,
+  "reuseAddress": true,
+  "reusePort": true,
+  "acceptBacklog": 8192,
+  "compressionSupported": false
+}

@@ -34,3 +34,17 @@ http://localhost:8080/update?queries=
 ### FORTUNES
 
 http://localhost:8080/fortunes
+
+
+Docker Profiling:
+### Build
+
+```shell
+docker build -t vertx-web-kotlin-dsljson-profiling -f vertx-web-kotlin-dsljson-profiling.dockerfile .
+```
+
+### Profiling
+```shell
+docker exec -it $(docker ps -qf name=vertx-web-kotlin-dsljson-profiling) \
+  /opt/async-profiler/profiler.sh -e cpu -d 30 -f /app/flame.html $(pgrep java)
+```

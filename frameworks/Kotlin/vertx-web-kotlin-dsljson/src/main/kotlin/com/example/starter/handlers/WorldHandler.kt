@@ -2,55 +2,52 @@ package com.example.starter.handlers
 
 import com.example.starter.db.WorldRepository
 import com.example.starter.utils.serialize
-import io.vertx.ext.web.RoutingContext
+import io.vertx.core.http.HttpServerRequest
 import org.apache.logging.log4j.kotlin.Logging
 
 class WorldHandler(private val repository: WorldRepository) : AbstractHandler() {
-    fun readRandomWorld(ctx: RoutingContext) {
+    fun readRandomWorld(req: HttpServerRequest) {
         repository
             .selectRandomWorld()
             .onSuccess {
-                ctx.json().end(it.serialize(), NULL_HANDLER)
+                req.json().end(it.serialize())
             }
             .onFailure {
-                logger.error(it) { SOMETHING_WENT_WRONG }
-                ctx.error()
+                logger.error(SOMETHING_WENT_WRONG, it)
+                req.error()
             }
     }
 
-    fun readRandomWorlds(ctx: RoutingContext) {
-        val queries = ctx.queries()
+    fun readRandomWorlds(req: HttpServerRequest) {
         repository
-            .selectRandomWorlds(queries)
+            .selectRandomWorlds(req.queries())
             .onSuccess {
-                ctx.json().end(it.serialize(), NULL_HANDLER)
+                req.json().end(it.serialize())
             }
             .onFailure {
-                logger.error(it) { SOMETHING_WENT_WRONG }
-                ctx.error()
+                logger.error(SOMETHING_WENT_WRONG, it)
+                req.error()
             }
     }
 
-    fun updateRandomWorlds(ctx: RoutingContext) {
-        val queries = ctx.queries()
+    fun updateRandomWorlds(req: HttpServerRequest) {
         repository
-            .updateRandomWorlds(queries)
+            .updateRandomWorlds(req.queries())
             .onSuccess {
-                ctx.json().end(it.serialize(), NULL_HANDLER)
+                req.json().end(it.serialize())
             }
             .onFailure {
-                logger.error(it) { SOMETHING_WENT_WRONG }
-                ctx.error()
+                logger.error(SOMETHING_WENT_WRONG, it)
+                req.error()
             }
     }
 
-    companion object : Logging {
+    private companion object : Logging {
         private const val QUERIES_PARAM_NAME = "queries"
 
         @Suppress("NOTHING_TO_INLINE")
-        private inline fun RoutingContext.queries(): Int {
-            val queriesParam = this.request().getParam(QUERIES_PARAM_NAME)
-            return queriesParam?.toIntOrNull()?.coerceIn(1, 500) ?: 1
-        }
+        private inline fun HttpServerRequest.queries(): Int = getParam(QUERIES_PARAM_NAME)
+            ?.toIntOrNull()
+            ?.coerceIn(1, 500) ?: 1
     }
 }

@@ -1,15 +1,15 @@
 package com.example.starter.handlers
 
-import io.vertx.core.buffer.Buffer
-import io.vertx.ext.web.RoutingContext
+import io.vertx.core.Future
+import io.vertx.core.http.HttpServerRequest
+import io.vertx.core.internal.buffer.BufferInternal
 
 class DefaultHandler : AbstractHandler() {
-    fun plaintext(ctx: RoutingContext) {
-        ctx.text().end(MESSAGE_BUFFER, NULL_HANDLER)
-    }
+    fun plaintext(req: HttpServerRequest): Future<Void> = req
+        .plaintext()
+        .end(MESSAGE_BUFFER)
 
-    companion object {
-        private const val MESSAGE = "Hello, World!"
-        private val MESSAGE_BUFFER = Buffer.buffer(MESSAGE, "UTF-8")
+    private companion object {
+        private val MESSAGE_BUFFER = BufferInternal.buffer("Hello, World!", "UTF-8")
     }
 }
