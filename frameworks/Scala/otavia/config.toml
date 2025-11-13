@@ -18,7 +18,7 @@ platform = "Otavia"
 webserver = "None"
 versus = "Otavia"
 
-[reserve]
+[overshoot]
 urls.plaintext = "/plaintext"
 urls.json = "/json"
 urls.db = "/db"

@@ -33,7 +33,7 @@ fun main(args: Array<String>) {
   runApp(args, EVENT_LOOP) {
 
     /** Template engine: */
-    install(RockerModule().reuseBuffer(true))
+    install(RockerModule())
 
     /** JSON: */
     install(JacksonModule())
@@ -43,8 +43,9 @@ fun main(args: Array<String>) {
     install(HikariModule())
     val ds = require(DataSource::class)
 
+    val message = outputFactory.wrap(MESSAGE_BYTES);
     get("/plaintext") {
-      ctx.send(MESSAGE_BYTES)
+      ctx.send(message)
     }
 
     get("/json") {
@@ -158,6 +159,6 @@ private fun nextRandom(rnd: Random): Int {
 
 fun Context.queries() = try {
   this.query("queries").intValue(1).coerceIn(1, 500)
-} catch (x: BadRequestException) {
+} catch (_: BadRequestException) {
   1
 }

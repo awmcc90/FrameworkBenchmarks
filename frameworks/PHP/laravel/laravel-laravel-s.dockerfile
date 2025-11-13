@@ -1,4 +1,9 @@
-FROM phpswoole/swoole:5.1.3-php8.3
+FROM phpswoole/swoole:php8.4
+
+RUN apt-get -y update > /dev/null \
+    && apt-get install -y libicu-dev > /dev/null \
+    && docker-php-ext-configure intl > /dev/null \
+    && docker-php-ext-install intl > /dev/null
 
 RUN docker-php-ext-install pcntl opcache curl > /dev/null
 
@@ -9,7 +14,11 @@ RUN echo "opcache.jit_buffer_size=128M" >> /usr/local/etc/php/conf.d/docker-php-
 WORKDIR /laravel
 COPY --link . .
 
-RUN mkdir -p /laravel/bootstrap/cache /laravel/storage/logs /laravel/storage/framework/sessions /laravel/storage/framework/views /laravel/storage/framework/cache
+RUN mkdir -p bootstrap/cache \
+            storage/logs \
+            storage/framework/sessions \
+            storage/framework/views \
+            storage/framework/cache
 
 COPY --link deploy/laravel-s/composer.json .
 

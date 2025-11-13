@@ -9,7 +9,7 @@ module Common =
     [<Struct>]
     [<CLIMutable>]
     type JsonMessage = {
-        message : string
+        message: string
     }
 
     [<CLIMutable>]
@@ -26,7 +26,9 @@ module Common =
     }
 
     [<Literal>]
-    let ConnectionString = "Server=tfb-database;Database=hello_world;User Id=benchmarkdbuser;Password=benchmarkdbpass;SSL Mode=Disable;Maximum Pool Size=1024;NoResetOnClose=true;Enlist=false;Max Auto Prepare=4;Multiplexing=true;Write Coalescing Buffer Threshold Bytes=1000"
+    let ConnectionString = "Server=tfb-database;Database=hello_world;User Id=benchmarkdbuser;Password=benchmarkdbpass;Maximum Pool Size=1024;NoResetOnClose=true;Enlist=false;Max Auto Prepare=4"
+    [<Literal>]
+    let MultiplexedConnectionString = ConnectionString + ";Multiplexing=true"
 
     let FortuneComparer = {
         new IComparer<Fortune> with

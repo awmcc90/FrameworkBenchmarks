@@ -1,7 +1,7 @@
 #
 # BUILD
 #
-FROM container-registry.oracle.com/graalvm/native-image:21-muslib-ol9 as build
+FROM container-registry.oracle.com/graalvm/native-image:25-muslib-ol10 as build
 USER root
 WORKDIR /hexagon
 
@@ -15,6 +15,8 @@ RUN ./gradlew --quiet -x test hexagon_jetty_postgresql:nativeCompile
 #
 FROM scratch
 ARG PROJECT=hexagon_jetty_postgresql
+
+ENV maximumPoolSize 300
 
 COPY --from=build /hexagon/$PROJECT/build/native/nativeCompile/$PROJECT /
 

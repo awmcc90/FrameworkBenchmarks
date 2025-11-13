@@ -1,11 +1,6 @@
-panther==3.2.1
-
-cython==3.0.6
-jinja2==3.1.4
-
-asyncpg==0.29.0
-
-gunicorn==22.0.0
-uvicorn==0.24.0
-uvloop==0.19.0
-httptools==0.6.1
+panther==5.0.2
+cython==3.1.2
+asyncpg==0.30.0
+gunicorn==23.0.0
+uvloop==0.21.0
+uvicorn==0.27.0

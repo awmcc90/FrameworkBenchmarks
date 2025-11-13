@@ -1,6 +1,4 @@
-FROM rust:1.79
-
-RUN apt-get update -yqq && apt-get install -yqq cmake g++
+FROM rust:1.89
 
 ADD ./ /viz
 WORKDIR /viz

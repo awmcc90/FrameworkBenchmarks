@@ -6,10 +6,12 @@ from granian import Granian
 
 if __name__ == '__main__':
     interface = sys.argv[1]
-    threading_mode = sys.argv[2]
+    runtime_mode = sys.argv[2]
+    workers = multiprocessing.cpu_count()
 
-    #: split cores between the two loops
-    workers = round(multiprocessing.cpu_count() / 2)
+    if interface == "rsgi":
+        #: leave 25% cpu to the Rust runtime
+        workers = round(workers * 0.75)
 
     blocking_threads = None
     if interface == "wsgi":
@@ -21,7 +23,7 @@ if __name__ == '__main__':
         address="0.0.0.0",
         port=8080,
         workers=workers,
-        threading_mode=threading_mode,
+        runtime_mode=runtime_mode,
         blocking_threads=blocking_threads,
         backlog=16384,
         interface=interface,

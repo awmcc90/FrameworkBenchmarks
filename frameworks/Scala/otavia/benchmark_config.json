@@ -21,11 +21,11 @@
         "webserver": "None",
         "os": "Linux",
         "database_os": "Linux",
-        "display_name": "otavia",
+        "display_name": "otavia (poolSize = 56)",
         "notes": "",
         "versus": "Otavia"
       },
-      "reserve": {
+      "overshoot": {
         "json_url": "/json",
         "plaintext_url": "/plaintext",
         "db_url": "/db",
@@ -44,7 +44,7 @@
         "webserver": "None",
         "os": "Linux",
         "database_os": "Linux",
-        "display_name": "otavia",
+        "display_name": "otavia (poolSize = 64)",
         "notes": "",
         "versus": "Otavia"
       }

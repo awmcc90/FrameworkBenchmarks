@@ -1,4 +1,4 @@
-FROM maven:3.9.6-eclipse-temurin-21-jammy
+FROM maven:3.9.11-eclipse-temurin-25-noble as maven
 WORKDIR /jooby
 COPY pom.xml pom.xml
 COPY src src
